@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:controller="org.example.Controller">
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <AnchorPane focusTraversable="true" prefHeight="275.0" prefWidth="325.0">
+         <children>
+            <RadioButton fx:id="Top64bit" layoutX="136.0" layoutY="65.0" mnemonicParsing="false" onAction="#Top64bitButton" text="64-bit">
+               <toggleGroup>
+                  <ToggleGroup fx:id="Grp" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="Bottom32bit" layoutX="136.0" layoutY="112.0" mnemonicParsing="false" onAction="#Bottom32bitButton" text="32-bit" toggleGroup="$Grp" />
+            <ProgressBar fx:id="ProgressBar" layoutX="87.0" layoutY="165.0" prefHeight="18.0" prefWidth="150.0" progress="0.0" />
+         </children>
+      </AnchorPane>
+   </children>
+</GridPane>
