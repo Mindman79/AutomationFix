@@ -7,8 +7,10 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +50,7 @@ public class Controller {
     private javafx.scene.control.ProgressBar ProgressBar;
 
     @FXML
-    void Bottom32bitButton(ActionEvent event) {
+    void Bottom32bitButton(ActionEvent event) throws IOException {
 
         System.out.println("32-bit selected");
 
@@ -57,7 +59,7 @@ public class Controller {
     }
 
     @FXML
-    void Top64bitButton(ActionEvent event) {
+    void Top64bitButton(ActionEvent event) throws IOException {
 
 
         System.out.println("64-bit selected");
@@ -78,48 +80,83 @@ public class Controller {
 
         }
 
-
-        String classpath = System.getProperty("java.class.path");
-
-        System.out.println(classpath);
     }
 
-    public void processChange(File file) {
+    public Boolean checkForRunning() throws IOException {
+
+        boolean running;
+
+        String line;
+        String pidInfo = "";
+
+        Process p = Runtime.getRuntime().exec(System.getenv("windir") + "\\system32\\" + "tasklist.exe");
+
+        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+        while ((line = input.readLine()) != null) {
+            pidInfo += line;
+        }
+
+        input.close();
+
+        if (pidInfo.contains("chrome.exe")) {
+
+            running = true;
+
+        } else {
+
+            running = false;
+        }
+
+        return running;
+    }
+
+    public void processChange(File file) throws IOException {
+
+        if (checkForRunning()) {
+
+            System.out.println("Chrome is running!");
+
+        } else {
+
+            System.out.println("Chrome is not running!");
+
+            new Thread(() -> {
+
+                try {
+
+                    FileUtils.copyDirectoryToDirectory(automation1ClientCache, temp);
+                    FileUtils.copyDirectoryToDirectory(automation2ClientCache, temp);
+
+                    Platform.runLater(() -> ProgressBar.setProgress(0.25));
+
+                    Runtime.getRuntime().exec(String.valueOf(file));
+
+                    TimeUnit.SECONDS.sleep(3);
+
+                    Platform.runLater(() -> ProgressBar.setProgress(0.50));
+
+                    FileUtils.cleanDirectory(cache);
+
+                    Platform.runLater(() -> ProgressBar.setProgress(0.75));
+
+                    FileUtils.copyDirectoryToDirectory(automation1TempFolder, cache);
+                    FileUtils.copyDirectoryToDirectory(automation2TempFolder, cache);
+
+                    TimeUnit.SECONDS.sleep(3);
+
+                    Platform.runLater(() -> ProgressBar.setProgress(1));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
 
 
-        new Thread(() -> {
+            }).start();
 
-            try {
-                FileUtils.copyDirectoryToDirectory(automation1ClientCache, temp);
-                FileUtils.copyDirectoryToDirectory(automation2ClientCache, temp);
-
-                Platform.runLater(() -> ProgressBar.setProgress(0.25));
-
-                Runtime.getRuntime().exec(String.valueOf(file));
-
-                TimeUnit.SECONDS.sleep(5);
-
-                Platform.runLater(() -> ProgressBar.setProgress(0.50));
-
-                FileUtils.cleanDirectory(cache);
-
-                Platform.runLater(() -> ProgressBar.setProgress(0.75));
-
-                FileUtils.copyDirectoryToDirectory(automation1TempFolder, cache);
-                FileUtils.copyDirectoryToDirectory(automation2TempFolder, cache);
-
-                TimeUnit.SECONDS.sleep(5);
-
-                Platform.runLater(() -> ProgressBar.setProgress(1));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
-
-        }).start();
-
+        }
 
     }
 }
