@@ -101,7 +101,7 @@ public class Controller {
 
                 Platform.runLater(() -> ProgressBar.setProgress(0.50));
 
-                FileUtils.deleteDirectory(cache);
+                FileUtils.cleanDirectory(cache);
 
                 Platform.runLater(() -> ProgressBar.setProgress(0.75));
 
